@@ -27,6 +27,24 @@ Persistence is local-first: records are held in the current Streamlit session an
 - Engineering Management PDF reporting
 - System JSON and ZIP backup
 
+## Engineering Operations next layer
+
+A dedicated **Engineering Operations** page adds the day-to-day workflow layer:
+
+- Complete a PM directly from its schedule
+- Automatically calculate the next due date for daily, weekly, monthly, quarterly, six-monthly, annual and custom interval PMs
+- Record PM completion as a linked maintenance-history event
+- Create reusable machine / asset-class PM templates
+- Apply a PM template to an asset to create a live schedule
+- Create a linked Engineering Action directly from a breakdown
+- Create a linked RCA directly from a breakdown
+- Review a combined Asset Engineering History timeline across maintenance, PM, actions, process improvements, trials, RCA, routes, tooling and spares
+- Low-stock and out-of-stock spare warnings
+- Update stock quantities and minimum-stock levels
+- Edit the identity and legacy/business IDs of existing records without changing their hidden system UUID
+
+The operational helpers are implemented in `next_layer.py` and the Streamlit page is `pages/1_Engineering_Operations.py`.
+
 ## Materials and departments
 
 Default materials include Glass, Silon, Alumina and Quartz. Materials, departments and asset classes can be changed from System Data & Backup.
@@ -35,9 +53,7 @@ Default materials include Glass, Silon, Alumina and Quartz. Materials, departmen
 
 Schema: `process-maintenance-engineering-system`
 
-Current schema version: `2`
-
-Version 1 system JSON files remain loadable. New v2 collections are added automatically when older files are loaded.
+The core file remains compatible with version 1 and version 2 JSON backups. The new PM template collection is added dynamically by the Engineering Operations page and is preserved in downloaded system JSON because unknown top-level collections are retained by the loader.
 
 ## Privacy / storage
 
