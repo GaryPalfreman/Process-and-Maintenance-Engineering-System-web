@@ -144,11 +144,32 @@ For the present single-user architecture:
 
 An in-session snapshot is **not** a substitute for downloading the full backup because the Streamlit session itself is not permanent.
 
+## Contacts & Suppliers
+
+`pages/4_Contacts_and_Suppliers.py` adds the external-support and purchasing layer. Its backend is `supplier_contacts.py`.
+
+The module stores:
+
+- Supplier / contractor companies
+- Individual contact people and their roles
+- Phone, mobile, email, website, address and account/customer numbers
+- Preferred contact method and availability
+- Company capabilities and what they are used for
+- Usage status: Preferred, Approved / Used, Alternative, Trial / Prospective, Do Not Use or Inactive
+- Engagement procedures for Service & Repair, Emergency Breakdown, Spare Parts, Tooling Purchase, Consumables Purchase, Equipment Purchase / RFQ, Technical Support, Calibration, Contractor Attendance and Warranty Claims
+- Required information, approval/PO process, escalation and emergency process
+- Links from suppliers/contacts/procedures to assets, tooling, spares, research, work orders, maintenance and products using hidden UUID relationships
+- Supplier usage and performance history including response time, recorded spend, outcome and optional 0–5 performance rating
+
+The Directory can answer practical questions such as who services a machine, who supplies a tool or spare, which contact to use, and the documented procedure for arranging the work or purchase.
+
+Removing a supplier/contact from active use archives the record instead of destroying history. Historical jobs, purchases and engineering relationships remain intact in JSON/ZIP backups.
+
 ## JSON compatibility
 
 Schema: `process-maintenance-engineering-system`
 
-The core loader remains compatible with version 1 and version 2 JSON backups. Production-readiness collections and fields are additive and are preserved because unknown top-level collections are retained by the loader.
+The core loader remains compatible with version 1 and version 2 JSON backups. Production-readiness and supplier/contact collections are additive and are preserved because unknown top-level collections are retained by the loader.
 
 ## Privacy / storage
 
