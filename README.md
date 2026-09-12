@@ -1,49 +1,44 @@
 # Process and Maintenance Engineering System
 
-A local-first Streamlit engineering management system for company-wide process engineering and maintenance work.
+A company-wide Streamlit system for process engineering, maintenance engineering, engineering trials, machinery/tooling research, asset management and engineering knowledge.
+
+Live app: https://process-and-maintenance-engineering-system-web.streamlit.app
+
+## Core design
+
+The system uses hidden UUIDs for internal relationships. Human-facing business IDs, legacy IDs and aliases are optional and can be added later without breaking links between records.
+
+Persistence is local-first: records are held in the current Streamlit session and can be downloaded as JSON or as a full ZIP backup. No persistent cloud database is configured.
 
 ## Current modules
 
-- Dashboard
-- Engineering Actions
-- Process Engineering / Improvements
-- Maintenance & Breakdowns
-- Asset Register
-- Engineering Trials
-- Machinery & Tooling Research
-- RCA & Investigations
-- System Data & Backup
+- Dashboard with engineering workload, PM due/overdue, breakdown downtime, MTTR and MTBF
+- Asset Register with full equipment profiles, criticality, utilities, safety, configuration and maintenance history
+- Products & Process Routes linking materials, departments, operations, assets, setup references and inspection requirements
+- Engineering Action Register
+- Preventive Maintenance Schedules with task checklists, due dates, safety requirements and parts requirements
+- Maintenance & Breakdown Management linked to assets, PM schedules, engineering actions and RCA records
+- Process Engineering & Improvement with cycle-time, rejection, tool-life and annual benefit tracking
+- Engineering Trials / Experimental Records
+- Machinery & Tooling Research / Recommendation records
+- Tooling Knowledge Library
+- Spare Parts / Consumables Register
+- Root Cause Analysis & Engineering Investigations
+- Engineering Management PDF reporting
+- System JSON and ZIP backup
 
-## Design principles
+## Materials and departments
 
-- Hidden UUIDs are used for record relationships.
-- Human-facing IDs are optional and editable later.
-- Business IDs, legacy IDs and aliases can be added without breaking linked records.
-- Data is persisted by downloading a complete system JSON file locally.
-- The hosted app does not deliberately keep a permanent online engineering database.
-- A local backup ZIP and management summary PDF can be generated.
+Default materials include Glass, Silon, Alumina and Quartz. Materials, departments and asset classes can be changed from System Data & Backup.
 
-## Initial material coverage
+## JSON compatibility
 
-The default material list includes:
+Schema: `process-maintenance-engineering-system`
 
-- Glass
-- Silon
-- Alumina
-- Quartz
+Current schema version: `2`
 
-The list is configurable from the System Data & Backup page.
+Version 1 system JSON files remain loadable. New v2 collections are added automatically when older files are loaded.
 
-## Asset coverage
+## Privacy / storage
 
-The asset register is intended to cover CNC equipment, grinding and cutting machines, laser systems, filtration, chillers, extraction, measuring equipment, internally developed/custom equipment and other maintainable assets.
-
-## Deployment
-
-- Repository: `GaryPalfreman/Process-and-Maintenance-Engineering-System-web`
-- Branch: `main`
-- Main file: `app.py`
-
-## Privacy note
-
-When this application is hosted on Streamlit Community Cloud, any JSON file uploaded to restore a system session is transmitted to the hosted Streamlit process for temporary processing. If records must never leave the local computer, run the application locally instead.
+The hosted Streamlit app does not use a persistent database. Uploaded JSON is processed by the hosted Streamlit session, so data does travel to the Streamlit server during use. Downloaded JSON/ZIP files are the intended persistent record. If data must never leave the local computer, run the app locally instead of using the hosted deployment.
