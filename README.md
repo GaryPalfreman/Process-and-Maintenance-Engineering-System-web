@@ -27,23 +27,69 @@ Persistence is local-first: records are held in the current Streamlit session an
 - Engineering Management PDF reporting
 - System JSON and ZIP backup
 
-## Engineering Operations next layer
+## Engineering Operations
 
-A dedicated **Engineering Operations** page adds the day-to-day workflow layer:
+The dedicated **Engineering Operations** page provides the day-to-day execution layer.
 
-- Complete a PM directly from its schedule
-- Automatically calculate the next due date for daily, weekly, monthly, quarterly, six-monthly, annual and custom interval PMs
-- Record PM completion as a linked maintenance-history event
-- Create reusable machine / asset-class PM templates
-- Apply a PM template to an asset to create a live schedule
+### Preventive maintenance execution
+
+- Complete PM work directly from its schedule
+- Task-by-task checklist tick-off before closure
+- Automatic next-due calculation for daily, weekly, monthly, quarterly, six-monthly, annual and custom intervals
+- Create a linked maintenance-history record automatically
+- Record technician, actual labour hours, labour rate and external/service cost
+- Select stocked parts consumed during the PM
+- Automatically deduct consumed quantities from spare-parts stock
+- Calculate labour, parts, external and total maintenance cost
+
+### Machine-specific maintenance packs
+
+Initial engineering maintenance packs are included for:
+
+- CNC
+- Grinding
+- Cutting
+- Laser
+- Filtration
+- Chiller
+- Extraction
+- Pump
+- Vacuum
+- Furnace
+
+These packs are starting templates only. They must be verified against the actual machine, OEM documentation and internal engineering requirements before they become controlled maintenance standards. Laser tasks are intentionally high-level because in-house laser design/configuration must determine the final maintenance requirements.
+
+Templates can be added to the PM library and then applied to individual assets to create live schedules.
+
+### Breakdown and reliability workflow
+
 - Create a linked Engineering Action directly from a breakdown
 - Create a linked RCA directly from a breakdown
-- Review a combined Asset Engineering History timeline across maintenance, PM, actions, process improvements, trials, RCA, routes, tooling and spares
-- Low-stock and out-of-stock spare warnings
-- Update stock quantities and minimum-stock levels
-- Edit the identity and legacy/business IDs of existing records without changing their hidden system UUID
+- Add a failure-category tag to breakdown records
+- Detect recurring failure groups
+- Downtime Pareto by asset
+- Breakdown count and cumulative downtime analysis
+- Combined linked Asset Engineering History across maintenance, PM, actions, process improvements, trials, RCA, routes, tooling and spares
 
-The operational helpers are implemented in `next_layer.py` and the Streamlit page is `pages/1_Engineering_Operations.py`.
+### Spare-parts control
+
+- Low-stock and out-of-stock warnings
+- Quantity-on-hand updates
+- Minimum-stock levels
+- Unit cost
+- Storage location
+- Automatic stock deduction from PM execution
+
+### Maintenance cost control
+
+- Labour cost = actual maintenance hours × labour rate
+- Parts cost from stocked components consumed
+- External/service costs
+- Total maintenance cost per maintenance record
+- Maintenance-cost analysis by asset
+- Cost ledger across maintenance history
+
+The first operational helpers are in `next_layer.py`. Advanced execution, stock-consumption, reliability analytics and standard maintenance packs are implemented in `advanced_operations.py`. The Streamlit operations page is `pages/1_Engineering_Operations.py`.
 
 ## Materials and departments
 
@@ -53,7 +99,7 @@ Default materials include Glass, Silon, Alumina and Quartz. Materials, departmen
 
 Schema: `process-maintenance-engineering-system`
 
-The core file remains compatible with version 1 and version 2 JSON backups. The new PM template collection is added dynamically by the Engineering Operations page and is preserved in downloaded system JSON because unknown top-level collections are retained by the loader.
+The core file remains compatible with version 1 and version 2 JSON backups. New operational fields are additive. The PM template collection is added dynamically and is preserved in downloaded system JSON because unknown top-level collections are retained by the loader.
 
 ## Privacy / storage
 
