@@ -29,67 +29,82 @@ Persistence is local-first: records are held in the current Streamlit session an
 
 ## Engineering Operations
 
-The dedicated **Engineering Operations** page provides the day-to-day execution layer.
+The **Engineering Operations** page provides the day-to-day execution layer:
 
-### Preventive maintenance execution
+- Task-by-task PM completion
+- Automatic next-due calculation
+- Technician, labour, service and parts cost capture
+- Automatic spare stock deduction
+- Machine-specific maintenance packs
+- Breakdown follow-up to Engineering Action or RCA
+- Failure categorisation and recurring-failure detection
+- Downtime Pareto
+- Maintenance cost analysis
+- Linked Asset Engineering History
 
-- Complete PM work directly from its schedule
-- Task-by-task checklist tick-off before closure
-- Automatic next-due calculation for daily, weekly, monthly, quarterly, six-monthly, annual and custom intervals
-- Create a linked maintenance-history record automatically
-- Record technician, actual labour hours, labour rate and external/service cost
-- Select stocked parts consumed during the PM
-- Automatically deduct consumed quantities from spare-parts stock
-- Calculate labour, parts, external and total maintenance cost
+Initial engineering maintenance packs are included for CNC, Grinding, Cutting, Laser, Filtration, Chiller, Extraction, Pump, Vacuum and Furnace. These are starting templates and must be verified against the actual machine, OEM documentation and internal engineering requirements before adoption as controlled maintenance standards. Laser tasks are intentionally high-level because in-house laser design/configuration must determine the final maintenance requirements.
 
-### Machine-specific maintenance packs
+Operational helpers are in `next_layer.py` and `advanced_operations.py`. The operations page is `pages/1_Engineering_Operations.py`.
 
-Initial engineering maintenance packs are included for:
+## Engineering Control Centre
 
-- CNC
-- Grinding
-- Cutting
-- Laser
-- Filtration
-- Chiller
-- Extraction
-- Pump
-- Vacuum
-- Furnace
+The new **Engineering Control Centre** moves the application toward a lightweight combined CMMS + Process Engineering + Engineering Knowledge System.
 
-These packs are starting templates only. They must be verified against the actual machine, OEM documentation and internal engineering requirements before they become controlled maintenance standards. Laser tasks are intentionally high-level because in-house laser design/configuration must determine the final maintenance requirements.
+### Maintenance work orders
 
-Templates can be added to the PM library and then applied to individual assets to create live schedules.
+- Create planned, corrective, breakdown follow-up, inspection, improvement and project work orders
+- Link work orders to assets, maintenance records and engineering actions
+- Track priority, owner, due date, scope, planned labour and planned downtime
+- Record actual labour, actual downtime, progress and completion notes
 
-### Breakdown and reliability workflow
+### Planned shutdown management
 
-- Create a linked Engineering Action directly from a breakdown
-- Create a linked RCA directly from a breakdown
-- Add a failure-category tag to breakdown records
-- Detect recurring failure groups
-- Downtime Pareto by asset
-- Breakdown count and cumulative downtime analysis
-- Combined linked Asset Engineering History across maintenance, PM, actions, process improvements, trials, RCA, routes, tooling and spares
+- Create shutdown/outage plans
+- Define affected assets, coordinator, dates and scope
+- Capture pre-work, parts readiness, contractor requirements, isolation/permit planning and restart validation
+- Link maintenance work orders into each shutdown
 
-### Spare-parts control
+### Condition monitoring
 
-- Low-stock and out-of-stock warnings
-- Quantity-on-hand updates
-- Minimum-stock levels
-- Unit cost
-- Storage location
-- Automatic stock deduction from PM execution
+- Record asset condition readings such as vibration, concentration, temperature, pressure or internally defined process health metrics
+- Define warning and critical limits with high- or low-direction alarms
+- Show current Normal / Warning / Critical condition status
+- Plot reading trends by asset and metric
 
-### Maintenance cost control
+### Asset criticality and risk scoring
 
-- Labour cost = actual maintenance hours × labour rate
-- Parts cost from stocked components consumed
-- External/service costs
-- Total maintenance cost per maintenance record
-- Maintenance-cost analysis by asset
-- Cost ledger across maintenance history
+Asset risk uses a simple configurable engineering score:
 
-The first operational helpers are in `next_layer.py`. Advanced execution, stock-consumption, reliability analytics and standard maintenance packs are implemented in `advanced_operations.py`. The Streamlit operations page is `pages/1_Engineering_Operations.py`.
+`(Safety + Production + Quality + Repair/Lead-Time consequence) × Likelihood`
+
+Each factor is rated 1–5, producing a score from 4–100 and a Low / Moderate / High / Critical risk band. The resulting band updates the asset criticality field without changing its hidden UUID.
+
+### Automatic RCA recommendations
+
+Breakdowns can be recommended for RCA when one or more triggers are met:
+
+- Downtime exceeds the selected threshold
+- Maintenance cost exceeds the selected threshold
+- The asset is High or Critical risk
+- A recurring failure pattern is detected
+- The breakdown is marked as having safety or quality impact
+
+The recommendation remains advisory; the engineer chooses whether to create the RCA.
+
+### Engineering handover dashboard
+
+The handover dashboard consolidates:
+
+- Assets down / under repair
+- Open work orders
+- High and Critical engineering actions
+- PM due within the selected horizon
+- Condition-monitoring warnings and critical alarms
+- Upcoming planned shutdowns
+- Actions awaiting parts or supplier response
+- Open engineering handover notes
+
+The control-centre logic is implemented in `control_centre.py`. The Streamlit page is `pages/2_Engineering_Control_Centre.py`.
 
 ## Materials and departments
 
@@ -99,7 +114,7 @@ Default materials include Glass, Silon, Alumina and Quartz. Materials, departmen
 
 Schema: `process-maintenance-engineering-system`
 
-The core file remains compatible with version 1 and version 2 JSON backups. New operational fields are additive. The PM template collection is added dynamically and is preserved in downloaded system JSON because unknown top-level collections are retained by the loader.
+The core loader remains compatible with version 1 and version 2 JSON backups. New operational and control-centre collections are additive and are preserved in downloaded system JSON because unknown top-level collections are retained by the loader.
 
 ## Privacy / storage
 
