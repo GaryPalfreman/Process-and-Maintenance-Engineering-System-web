@@ -6,34 +6,36 @@ Live app: https://process-and-maintenance-engineering-system-web.streamlit.app
 
 ## Core design
 
-The system uses hidden UUIDs for internal relationships. Human-facing business IDs, legacy IDs and aliases are optional and can be added later without breaking links between records.
+The system uses hidden UUIDs for internal relationships. Human-facing business IDs, legacy IDs, aliases and convenient display IDs remain metadata, so numbering can change without breaking links between records.
 
-Persistence is local-first: records are held in the current Streamlit session and can be downloaded as JSON or as a full ZIP backup. No persistent cloud database is configured.
+The current deployment is intentionally optimised for a **single engineering user**. Persistence remains local-first: the current Streamlit session holds the working data and downloaded JSON/ZIP backups are the durable record. No persistent multi-user database or account system is required for the present use case.
 
-## Current modules
+## Main engineering system
+
+The core application includes:
 
 - Dashboard with engineering workload, PM due/overdue, breakdown downtime, MTTR and MTBF
-- Asset Register with full equipment profiles, criticality, utilities, safety, configuration and maintenance history
-- Products & Process Routes linking materials, departments, operations, assets, setup references and inspection requirements
+- Asset Register with equipment profiles, criticality, utilities, safety, configuration and maintenance history
+- Products & Process Routes
 - Engineering Action Register
-- Preventive Maintenance Schedules with task checklists, due dates, safety requirements and parts requirements
-- Maintenance & Breakdown Management linked to assets, PM schedules, engineering actions and RCA records
-- Process Engineering & Improvement with cycle-time, rejection, tool-life and annual benefit tracking
-- Engineering Trials / Experimental Records
-- Machinery & Tooling Research / Recommendation records
+- Preventive Maintenance Schedules
+- Maintenance & Breakdown Management
+- Process Engineering & Improvement
+- Engineering Trials
+- Machinery & Tooling Research
 - Tooling Knowledge Library
 - Spare Parts / Consumables Register
-- Root Cause Analysis & Engineering Investigations
+- RCA & Engineering Investigations
 - Engineering Management PDF reporting
 - System JSON and ZIP backup
 
 ## Engineering Operations
 
-The **Engineering Operations** page provides the day-to-day execution layer:
+`pages/1_Engineering_Operations.py` provides the execution layer:
 
 - Task-by-task PM completion
 - Automatic next-due calculation
-- Technician, labour, service and parts cost capture
+- Labour, service and parts cost capture
 - Automatic spare stock deduction
 - Machine-specific maintenance packs
 - Breakdown follow-up to Engineering Action or RCA
@@ -42,79 +44,111 @@ The **Engineering Operations** page provides the day-to-day execution layer:
 - Maintenance cost analysis
 - Linked Asset Engineering History
 
-Initial engineering maintenance packs are included for CNC, Grinding, Cutting, Laser, Filtration, Chiller, Extraction, Pump, Vacuum and Furnace. These are starting templates and must be verified against the actual machine, OEM documentation and internal engineering requirements before adoption as controlled maintenance standards. Laser tasks are intentionally high-level because in-house laser design/configuration must determine the final maintenance requirements.
+Initial maintenance packs cover CNC, Grinding, Cutting, Laser, Filtration, Chiller, Extraction, Pump, Vacuum and Furnace. They are starting templates and must be verified against the actual equipment, OEM documentation and internal engineering requirements before becoming controlled standards. Laser tasks remain deliberately high-level so the final standard follows the actual in-house laser design/configuration.
 
-Operational helpers are in `next_layer.py` and `advanced_operations.py`. The operations page is `pages/1_Engineering_Operations.py`.
+Operational helpers are in `next_layer.py` and `advanced_operations.py`.
 
 ## Engineering Control Centre
 
-The new **Engineering Control Centre** moves the application toward a lightweight combined CMMS + Process Engineering + Engineering Knowledge System.
+`pages/2_Engineering_Control_Centre.py` provides the lightweight CMMS/control-centre layer:
 
-### Maintenance work orders
+- Maintenance work orders
+- Planned shutdown management
+- Condition-monitoring readings and trends
+- Asset criticality / risk scoring
+- Advisory automatic RCA triggers
+- Engineering handover dashboard
 
-- Create planned, corrective, breakdown follow-up, inspection, improvement and project work orders
-- Link work orders to assets, maintenance records and engineering actions
-- Track priority, owner, due date, scope, planned labour and planned downtime
-- Record actual labour, actual downtime, progress and completion notes
+The control-centre logic is in `control_centre.py`.
 
-### Planned shutdown management
+## Production Readiness Workspace
 
-- Create shutdown/outage plans
-- Define affected assets, coordinator, dates and scope
-- Capture pre-work, parts readiness, contractor requirements, isolation/permit planning and restart validation
-- Link maintenance work orders into each shutdown
+`pages/3_Production_Readiness.py` is the final single-user production-readiness layer. Its engine is `production_readiness.py`.
 
-### Condition monitoring
+### My Engineering Day
 
-- Record asset condition readings such as vibration, concentration, temperature, pressure or internally defined process health metrics
-- Define warning and critical limits with high- or low-direction alarms
-- Show current Normal / Warning / Critical condition status
-- Plot reading trends by asset and metric
+A daily attention view combines urgent engineering work, assets down, stock warnings and open engineering changes so the system opens on actionable work rather than static records.
 
-### Asset criticality and risk scoring
+### Quick Capture and Engineering Inbox
 
-Asset risk uses a simple configurable engineering score:
+Fast capture supports breakdown notes, engineering issues, maintenance items, process ideas, trial notes, research ideas and general notes. Captured items remain in an Engineering Inbox until promoted into a formal Action, Maintenance record, Trial, Research record, Engineering Change or Diary entry. Promotion retains the source link.
 
-`(Safety + Production + Quality + Repair/Lead-Time consequence) × Likelihood`
+### Global engineering search
 
-Each factor is rated 1–5, producing a score from 4–100 and a Low / Moderate / High / Critical risk band. The resulting band updates the asset criticality field without changing its hidden UUID.
+One search scans assets, maintenance, PM, actions, work orders, shutdowns, condition readings, process improvements, trials, research, RCA, products/routes, tooling, spares, diary entries, decisions, engineering changes, lessons learned and document references.
 
-### Automatic RCA recommendations
+### Asset 360
 
-Breakdowns can be recommended for RCA when one or more triggers are met:
+Selecting an asset shows a combined engineering timeline plus linked:
 
-- Downtime exceeds the selected threshold
-- Maintenance cost exceeds the selected threshold
-- The asset is High or Critical risk
-- A recurring failure pattern is detected
-- The breakdown is marked as having safety or quality impact
+- Maintenance
+- PM schedules
+- Work orders
+- Condition monitoring
+- Engineering actions
+- Process improvements
+- Trials
+- RCA
+- Engineering changes
+- Tooling
+- Spares
+- Lessons learned
+- References
 
-The recommendation remains advisory; the engineer chooses whether to create the RCA.
+### Engineering Change Register
 
-### Engineering handover dashboard
+Formal change control follows:
 
-The handover dashboard consolidates:
+`Problem -> Existing State -> Proposed Change -> Risk Review -> Trial -> Decision -> Implementation -> Validation -> Before/After Result -> Final Standard`
 
-- Assets down / under repair
-- Open work orders
-- High and Critical engineering actions
-- PM due within the selected horizon
-- Condition-monitoring warnings and critical alarms
-- Upcoming planned shutdowns
-- Actions awaiting parts or supplier response
-- Open engineering handover notes
+This creates a defensible engineering history explaining why a process, machine configuration, tool, fixture or standard was changed.
 
-The control-centre logic is implemented in `control_centre.py`. The Streamlit page is `pages/2_Engineering_Control_Centre.py`.
+### Engineering knowledge system
 
-## Materials and departments
+The production workspace adds:
 
-Default materials include Glass, Silon, Alumina and Quartz. Materials, departments and asset classes can be changed from System Data & Backup.
+- Engineering Diary
+- Decision Register including rationale, evidence and alternatives considered
+- Lessons Learned / Known Issues
+- Structured references for drawings, manuals, photos, CNC programs, supplier documents, calibration records, procedures, specifications, folders and web links
+
+References store locations/identifiers rather than forcing large files into the Streamlit JSON.
+
+### Record lifecycle and display IDs
+
+Records can be assigned optional convenient display numbers such as `WO-0001`, `RCA-0001`, `EC-0001` and similar module-specific numbers while hidden UUIDs remain the relational keys.
+
+Records can move through Draft, Active, Complete, Closed and Archived lifecycle states. Archiving preserves engineering history rather than deleting it. Records can also be cloned; clones receive a new hidden UUID and new display ID.
+
+### Data quality and system health
+
+Built-in checks flag examples such as:
+
+- Active assets without PM schedules
+- Breakdown records without a failure category/diagnosis
+- Completed work orders without completion notes
+- Spares without minimum stock levels
+- Overdue engineering actions
+- Missing/orphaned UUID links
+
+The System Health view reports schema/version, record counts, data-quality issues, orphan links and backup age.
+
+### Backup and recovery
+
+For the present single-user architecture:
+
+- Downloaded JSON/ZIP remains the durable backup
+- Configurable backup reminders flag when a backup is due
+- Uploaded JSON can be validated before restoration
+- A temporary in-session recovery snapshot can be created/restored for protection against accidental edits during the current browser session
+
+An in-session snapshot is **not** a substitute for downloading the full backup because the Streamlit session itself is not permanent.
 
 ## JSON compatibility
 
 Schema: `process-maintenance-engineering-system`
 
-The core loader remains compatible with version 1 and version 2 JSON backups. New operational and control-centre collections are additive and are preserved in downloaded system JSON because unknown top-level collections are retained by the loader.
+The core loader remains compatible with version 1 and version 2 JSON backups. Production-readiness collections and fields are additive and are preserved because unknown top-level collections are retained by the loader.
 
 ## Privacy / storage
 
