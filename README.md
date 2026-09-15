@@ -4,6 +4,21 @@ A company-wide Streamlit system for process engineering, maintenance engineering
 
 Live app: https://process-and-maintenance-engineering-system-web.streamlit.app
 
+## Run the public test suite locally
+
+Use Python 3.12 or another supported Python 3 release, then create an isolated
+environment and run the same checks used by the pull-request workflow:
+
+```sh
+python -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install -r requirements.txt -r requirements-dev.txt
+.venv/bin/python -m pip check
+.venv/bin/python -m compileall -q $(git ls-files '*.py')
+.venv/bin/python -m pytest
+git diff --check
+```
+
 ## Core design
 
 The system uses hidden UUIDs for internal relationships. Human-facing business IDs, legacy IDs, aliases and convenient display IDs remain metadata, so numbering can change without breaking links between records.
