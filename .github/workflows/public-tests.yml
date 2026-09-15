@@ -1,0 +1,42 @@
+name: Public tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "candidate/**"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Create clean virtual environment
+        run: python -m venv .venv
+
+      - name: Install dependencies
+        run: |
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Check installed dependencies
+        run: .venv/bin/python -m pip check
+
+      - name: Compile tracked Python files
+        run: .venv/bin/python -m compileall -q $(git ls-files '*.py')
+
+      - name: Run tests
+        run: .venv/bin/python -m pytest
+
+      - name: Check whitespace errors
+        run: git diff --check
